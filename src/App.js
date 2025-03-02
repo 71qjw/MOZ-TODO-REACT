@@ -3,11 +3,24 @@ import Form from "./components/Form";
 import Todo from "./components/Todo";
 import { useState } from "react";
 import { nanoid } from "nanoid";
+import { useEffect, useRef} from "react";
+
 
 export default function App(props) {
 
-  const [tasks, setTasks] = useState(props.tasks);
+  const headRef = useRef(null);
+
+  const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("All");
+
+  useEffect(() => {
+    fetch("http://localhost:8080/todo/all").then((res) =>{
+      return res.json();
+    }).then((todos) =>{
+      console.log(todos);
+      setTasks(todos);
+    })
+  },[])
 
   const FILTER_MAP = {
     All: () => true,
@@ -15,6 +28,7 @@ export default function App(props) {
     Completed: (task) => task.completed,
   }
   const FILTER_NAMES = Object.keys(FILTER_MAP);
+
 
   function addTask(name) {
     const newTask = { id: `todo-${nanoid()}`, name, completed: false };
@@ -74,12 +88,12 @@ export default function App(props) {
 
   return (
     <div className="todoapp stack-large">
-      <h1>TodoMatic</h1>
+      <h1 onClick={() => { console.log(headRef)}}>TodoMatic</h1>
       <Form onSubmit={addTask} />
       <div className="filters btn-group stack-exception">
         {filterList}
       </div>
-      <h2 id="list-heading">{headingText}</h2>
+      <h2 id="list-heading" ref={headRef}>{headingText}</h2>
       <ul
         role="list"
         className="todo-list stack-large stack-exception"
