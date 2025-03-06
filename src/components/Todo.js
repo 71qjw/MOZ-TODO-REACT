@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+
 export default function Todo(props) {
   const [isEditing, setEditing] = useState(false);
   const [newName, setNewName] = useState("");
@@ -10,7 +11,7 @@ export default function Todo(props) {
 
   function handleSubmit(e){
     e.preventDefault();
-    props.editTask(props.id,newName);
+    props.editTask(props.id,newName,props.completed);
     setNewName("");
     setEditing(false);
   }
@@ -47,7 +48,7 @@ export default function Todo(props) {
           id={props.id}
           type="checkbox"
           defaultChecked={props.completed}
-          onChange={() => props.toggleTaskCompleted(props.id)}
+          onChange={() => props.toggleTaskCompleted(props.id,props.name,!props.completed)}
         />
         <label className="todo-label" htmlFor={props.id}>
           {props.name}

@@ -2,24 +2,20 @@ import FilterButton from "./components/FilterButton";
 import Form from "./components/Form";
 import Todo from "./components/Todo";
 import { useState } from "react";
-import { nanoid } from "nanoid";
 import { useEffect, useRef} from "react";
+import { useTaskStore } from "./store/todo";
 
 
-export default function App(props) {
+export default function App() {
+
+  const { allTasks,fetchAllTasks,addTask,deleteTask,editTask,toggleTaskCompleted} = useTaskStore();
 
   const headRef = useRef(null);
 
-  const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState("All");
 
   useEffect(() => {
-    fetch("http://localhost:8080/todo/all").then((res) =>{
-      return res.json();
-    }).then((todos) =>{
-      console.log(todos);
-      setTasks(todos);
-    })
+    fetchAllTasks();
   },[])
 
   const FILTER_MAP = {
@@ -29,39 +25,7 @@ export default function App(props) {
   }
   const FILTER_NAMES = Object.keys(FILTER_MAP);
 
-
-  function addTask(name) {
-    const newTask = { id: `todo-${nanoid()}`, name, completed: false };
-    setTasks([...tasks, newTask]);
-    console.log(tasks);
-  }
-
-  function toggleTaskCompleted(id) {
-    const updatedTasks = tasks.map((task) => {
-      if (id === task.id) {
-        return { ...task, completed: !task.completed };
-      }
-      return task;
-    });
-    setTasks(updatedTasks);
-  }
-
-  function deleteTask(id) {
-    const remainingTasks = tasks.filter((task) => id !== task.id);
-    setTasks(remainingTasks);
-  }
-
-  function editTask(id, newName) {
-    const editTaskList = tasks.map((task) => {
-      if (id === task.id) {
-        return { ...task, name: newName };
-      }
-      return task;
-    });
-    setTasks(editTaskList);
-  }
-
-  const taskList = tasks.filter(FILTER_MAP[filter]).map((task) => (
+  const taskList = allTasks.filter(FILTER_MAP[filter]).map((task) => (
     <Todo
       id={task.id}
       name={task.name}
@@ -81,7 +45,6 @@ export default function App(props) {
       setFilter={setFilter} />
   ));
 
-  console.log(taskList);
 
   const tasksNoun = taskList.length !== 1 ? "tasks" : "task";
   const headingText = `${taskList.length} ${tasksNoun} remaining`;
